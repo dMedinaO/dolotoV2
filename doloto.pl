@@ -17,9 +17,11 @@ my $id = '';
 my %net = ();#tf->gene
 %{$net{"true"}} = ();#tf->gene 1, 0 else
 %{$net{"pred"}} = ();#p(tf->gene)>threshold 1, 0 else
+
 my %inDegree = ();#indegree
 %{$inDegree{"true"}} = ();
 %{$inDegree{"pred"}} = ();
+
 my %outDegree = ();#outdegree
 %{$outDegree{"true"}} = ();
 %{$outDegree{"pred"}} = ();
