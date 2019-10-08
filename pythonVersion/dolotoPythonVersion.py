@@ -84,10 +84,11 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
                 inDegree["true"][dataRow[1]].append(dataRow[0])
 
             else:
-                if dataRow[0] not in net["true"].keys():#evaluamos si el nodo existe en el diccionario
-                    net["true"].update({dataRow[0]: {}})
-                net["true"][dataRow[0]].update({dataRow[1]:0})#actualizamos el valor de la key con respecto al nodo de conexion
-                cc0+=1
+                if case == 1:
+                    if dataRow[0] not in net["true"].keys():#evaluamos si el nodo existe en el diccionario
+                        net["true"].update({dataRow[0]: {}})
+                    net["true"][dataRow[0]].update({dataRow[1]:0})#actualizamos el valor de la key con respecto al nodo de conexion
+                    cc0+=1
 
             if dataRow[0] not in done["true"].keys():
                 node+=1
@@ -116,6 +117,29 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
     #$outtxttable .= "REFERENCE :\t$tmp\t$node\t$cc\t$cc0\n";
     #$countgl[0] = $cc;
 
+#obtener informacion desde la red input
+def loadPred(inputFile):
+
+    #obtenemos la informacion del archivo de input
+    inputData = readDocFile(inputFile)
+
+    #definicion de variables temporales
+    cc = 0
+    cc0 = 0
+    nodes = []
+    tfs = {}
+    node = 0
+
+    #recorremos el arreglo y obtenemos los valores asociados a la data de la red
+    for element in inputData:
+        if len(element.split("\t")) == 3:#solo si cumple con la cantidad de elementos generados
+            dataRow = element.split("\t")
+
+            #obtenemos informacion de los nodos y la data en la red
+            tfs.update({dataRow[0]:1})
+            tfall.update({dataRow[0]:1})
+            nodeall.update({dataRow[0]:1})
+            nodeall.update({dataRow[1]:1})
 
 
 
