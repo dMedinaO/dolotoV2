@@ -1784,14 +1784,14 @@ getopt();
 loadGold();
 
 
-if($ff ne ''){
-	loadPred();
+#if($ff ne ''){
+#	loadPred();
 #	findMotives_edgeres();
 #	printres();
-}
-else{
-	findMotives_gold();
-	printres_gold();
-}
+#}
+#else{
+#	findMotives_gold();
+#	printres_gold();
+#}
 
 #printNets();

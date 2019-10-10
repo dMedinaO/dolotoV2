@@ -52,8 +52,8 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
 
                 if dataRow[0] not in outnet.keys():
                     outnet.update({dataRow[0]:{}})#generamos el diccionario
-                if dataRow[1] not in outnet[dataRow[0]].keys():
-                    outnet[dataRow[0]].update({dataRow[1]:['P', 'A']})
+                #if dataRow[1] not in outnet[dataRow[0]].keys():
+                outnet[dataRow[0]].update({dataRow[1]:['P', 'A']})
 
                 if dataRow[0] not in outnetnodes.keys():
                     outnetnodes.update({dataRow[0]: ['-','-']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos

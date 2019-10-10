@@ -20,6 +20,7 @@ sub loadGold{
 					$net{"true"}{$t[0]}{$t[1]} = 1;
 					$outnet{$t[0]}{$t[1]}[0] = 'P';
 					$outnet{$t[0]}{$t[1]}[1] = 'A';
+
 					if(!defined $outnetnodes{$t[0]}){
 						$outnetnodes{$t[0]}[0] = 'TF';
 					}
@@ -82,6 +83,7 @@ sub loadGold{
 					$net{"true"}{$t[0]}{$t[1]} = 1;
 					$outnet{$t[0]}{$t[1]}[0] = 'P';
 					$outnet{$t[0]}{$t[1]}[1] = 'A';
+
 					if(!defined $outnetnodes{$t[0]}){
 						$outnetnodes{$t[0]}[0] = 'TF';
 					}
