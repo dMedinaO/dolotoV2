@@ -17,11 +17,9 @@ my $id = '';
 my %net = ();#tf->gene
 %{$net{"true"}} = ();#tf->gene 1, 0 else
 %{$net{"pred"}} = ();#p(tf->gene)>threshold 1, 0 else
-
 my %inDegree = ();#indegree
 %{$inDegree{"true"}} = ();
 %{$inDegree{"pred"}} = ();
-
 my %outDegree = ();#outdegree
 %{$outDegree{"true"}} = ();
 %{$outDegree{"pred"}} = ();
@@ -30,7 +28,7 @@ my @tf0 = ();#pred TFs
 my %tfall= ();#all TFs
 my %nodeall= ();#all TFs
 my $TNG = 0;
-my %done = ();#all nodes
+my %done = ();#all nodes 
 %{$done{"true"}} = ();
 %{$done{"pred"}} = ();
 my $node = 0;
@@ -73,7 +71,7 @@ for my $i(0..12){
 
 
 
-#~ $f = "/home/alberto/Dropbox/Work/Network_predictions/DREAM5_NetworkInference_GoldStandard_Network3.tsv";
+#~ $f = "/home/alberto/Dropbox/Work/Network_predictions/DREAM5_NetworkInference_GoldStandard_Network3.tsv";		
 #~ $ff = "/home/alberto/Dropbox/Work/Network_predictions/DREAM5_NetworkInference_GoldStandard_Network3.tsv";
 #~ $ff = "/home/alberto/Dropbox/Work/Network_predictions/Community_integration/DREAM5_NetworkInference_Community_Network3.txt";
 #~ $f = "/home/alberto/Dropbox/Work/Network_predictions/test_gold01.txt";
@@ -89,7 +87,7 @@ sub getopt{
 			 case 2 (ref and input contain only all TP, negatives are assumed to happen among all nodes without a true between them, default)
 	-f folder\t: folder where the output file will be placed
 	-o name\t: name of output file
-
+	
 	-h||--help : print help
 
 ";
@@ -127,8 +125,8 @@ sub getopt{
 		if($ARGV[0] eq '-h' || $ARGV[0] eq '--help'){
 			die $usage;
 		}
-	}
-
+	}	
+	
 	#~ if($f eq '' || $ff eq ''){
 	if($f eq ''){
 		die $usage;
@@ -144,19 +142,13 @@ sub getopt{
 		#~ print "\nGOLD       \t:\t$f\nINPUT      \t:\t$ff\nThreshold\t:\t$threshold\nCase       \t:\t$case\n\n";
 		print "\nREFERENCE       \t:\t$fg\nINPUT            \t:\t$ffg\nThreshold        \t:\t$threshold\nCase             \t:\t$case\n\n";
 		$outtxttable .= "\nREFERENCE       \t:\t$fg\nINPUT            \t:\t$ffg\nThreshold        \t:\t$threshold\nCase            \t:\t$case\n\n";
-		print "Print David ffg $ffg\n";
-		print "Print David fg $fg\n";
 		if($ff ne ''){
 			$id = "$fg\_$ffg";
-			print "Print David id if $id\n";
 		}
 		else{
 			$id = "$fg";
-			print "Print David id else $id\n";
 		}
-
-		print "Print David id $id\n";
-	}
+	} 
 }
 
 sub compute_stats{
@@ -319,7 +311,7 @@ sub loadGold{
 					$node++;
 					$done{"true"}{$t[1]} = $t[1] ;
 				}
-			}
+			}			
 			else{
 				shift @d;
 			}
@@ -460,7 +452,7 @@ sub loadPred{
 					else{
 						$net{"pred"}{$t[0]}{$t[1]} = 0;
 						$cc0++;
-					}
+					}				
 					if(!defined $done{"pred"}{$t[0]}){
 						$node++;
 						$done{"pred"}{$t[0]} = $t[0] ;
@@ -689,7 +681,7 @@ my $nodenet = "
       <att name=\"NODE_BORDER_TRANSPARENCY\" value=\"255\" type=\"string\"/>
     </graphics>
   </node>";
-
+  
 my $edgenet = "
   <edge id=\"XXXXX\" label=\"YYYYY\" source=\"JJJJJ\" target=\"KKKKK\" cy:directed=\"1\">
     <att name=\"interaction\" value=\"1\" type=\"string\"/>
@@ -725,7 +717,7 @@ my $edgenet = "
       <att name=\"EDGE_VISIBLE\" value=\"true\" type=\"string\"/>
     </graphics>
   </edge>";
-
+  
 	if($ff eq ''){
 		$nodestable = "name\tcolor\tgraphlet_degree\ttype\n";
 		$edgestable = "name\tsource\ttarget\tinteraction\tcolor\n";
@@ -738,7 +730,7 @@ my $edgenet = "
     <att name=\"presence in compared\" value=\"KKKKK\" type=\"string\"\/>//;
 		$edgenet =~ s/
     <att name=\"reference presence\" value=\"RRRRR\" type=\"string\"\/>
-    <att name=\"compared presence\" value=\"SSSSS\" type=\"string\"\/>
+    <att name=\"compared presence\" value=\"SSSSS\" type=\"string\"\/>    
     <att name=\"source presence\" value=\"MMMMM\" type=\"string\"\/>
     <att name=\"target presence\" value=\"NNNNN\" type=\"string\"\/>
     <att name=\"class\" value=\"OOOOO\" type=\"string\"\/>//;
@@ -901,9 +893,9 @@ sub findMotives_gold{
 			for my $j (@{$outDegree{"true"}{$i}}){
 				if(defined$net{"true"}{$i}{$l} && defined$net{"true"}{$j}{$l} && defined$net{"true"}{$l}{$j} && defined$net{"true"}{$j}{$i} && defined$net{"true"}{$l}{$i}){
 					my (@tmp) = dotriplet_noij($net{"true"}{$i}{$l}, $net{"true"}{$j}{$l}, $net{"true"}{$l}{$j}, $net{"true"}{$j}{$i}, $net{"true"}{$l}{$i}, $i, $j, $l);
-
+					
 					if($tmp[1] && !exists $donegraph{"$tmp[1] $tmp[2] $tmp[3]"}){
-
+						
 						#~ if($tmp[0] == 10){
 							#~ print "TRUE: $net{true}{$i}{$j}, $net{true}{$i}{$l}, $net{true}{$j}{$l}, $net{true}{$l}{$j}, $net{true}{$j}{$i}, $net{true}{$l}{$i}, $i, $j, $l\n";
 						#~ }
@@ -925,32 +917,32 @@ sub findMotives_gold{
 				}
 			}
 		}
-	}
+	}		
 }
 
 
-sub findMotives_edgeres{
+sub findMotives_edgeres{	
 	my $count = 0;
 	my %donegraphpred = ();
 	for my $i(@tf0){#tfs in ture
-
+		
 		#~ if($i eq "gcvA"){
 			#~ print "$i: @{$outDegree{pred}{$i}}\n";
 		#~ }
 		for my $l (keys %{$done{"pred"}}){
-			for my $j (@{$outDegree{"pred"}{$i}}){
+			for my $j (@{$outDegree{"pred"}{$i}}){				
 				#~ if(!exists $tft{$l} || !exists $tft{$i}){
 					#~ my (@tmp) = dotriplet_noij($net{"pred"}{$i}{$l}, $net{"pred"}{$j}{$l}, $net{"pred"}{$l}{$j}, $net{"pred"}{$j}{$i}, $net{"pred"}{$l}{$i}, $i, $j, $l);
 					#~ print "$i||$j||$l||LL::@tmp\n";
 				#~ }
 				if(defined $net{"pred"}{$i}{$l} && defined $net{"pred"}{$j}{$l} && defined $net{"pred"}{$l}{$j} && defined $net{"pred"}{$j}{$i} && defined $net{"pred"}{$l}{$i}){
 					my (@tmp) = dotriplet_noij($net{"pred"}{$i}{$l}, $net{"pred"}{$j}{$l}, $net{"pred"}{$l}{$j}, $net{"pred"}{$j}{$i}, $net{"pred"}{$l}{$i}, $i, $j, $l);
-
+					
 					if($tmp[1] && !exists $donegraphpred{"$tmp[1] $tmp[2] $tmp[3]"}){
 						#~ if($tmp[0] == 10){
 							#~ print "pred: $net{pred}{$i}{$j}, $net{pred}{$i}{$l}, $net{pred}{$j}{$l}, $net{pred}{$l}{$j}, $net{pred}{$j}{$i}, $net{pred}{$l}{$i}, $i, $j, $l\n";
 						#~ }
-					#~ && !exists $donegraphpred{"$tmp[2] $tmp[3] $tmp[1]"}
+					#~ && !exists $donegraphpred{"$tmp[2] $tmp[3] $tmp[1]"} 
 					#~ && !exists $donegraphpred{"$tmp[3] $tmp[2] $tmp[1]"} && !exists $donegraphpred{"$tmp[3] $tmp[1] $tmp[2]"}
 					#~ && !exists $donegraphpred{"$tmp[1] $tmp[3] $tmp[2]"} && !exists $donegraphpred{"$tmp[2] $tmp[1] $tmp[3]"}){
 						$donegraphpred{"$tmp[1] $tmp[2] $tmp[3]"} = $tmp[0];
@@ -1022,9 +1014,9 @@ sub findMotives_edgeres{
 			for my $j (@{$outDegree{"true"}{$i}}){
 				if(defined$net{"true"}{$i}{$l} && defined$net{"true"}{$j}{$l} && defined$net{"true"}{$l}{$j} && defined$net{"true"}{$j}{$i} && defined$net{"true"}{$l}{$i}){
 					my (@tmp) = dotriplet_noij($net{"true"}{$i}{$l}, $net{"true"}{$j}{$l}, $net{"true"}{$l}{$j}, $net{"true"}{$j}{$i}, $net{"true"}{$l}{$i}, $i, $j, $l);
-
+					
 					if($tmp[1] && !exists $donegraph{"$tmp[1] $tmp[2] $tmp[3]"}){
-
+						
 						#~ if($tmp[0] == 10){
 							#~ print "TRUE: $net{true}{$i}{$j}, $net{true}{$i}{$l}, $net{true}{$j}{$l}, $net{true}{$l}{$j}, $net{true}{$j}{$i}, $net{true}{$l}{$i}, $i, $j, $l\n";
 						#~ }
@@ -1112,7 +1104,7 @@ sub findMotives_edgeres{
 							delete $res{"pred"}{$tmp[3]}{$tmp[0]}{"$tmp[2] $tmp[1]"};
 						}
 					}
-					#~ elsif( !exists $donegraph{"$tmp[1] $tmp[2] $tmp[3]"} && !exists $donegraph{"$tmp[2] $tmp[3] $tmp[1]"}
+					#~ elsif( !exists $donegraph{"$tmp[1] $tmp[2] $tmp[3]"} && !exists $donegraph{"$tmp[2] $tmp[3] $tmp[1]"} 
 					#~ && !exists $donegraph{"$tmp[3] $tmp[2] $tmp[1]"} && !exists $donegraph{"$tmp[3] $tmp[1] $tmp[2]"}
 					#~ && !exists $donegraph{"$tmp[1] $tmp[3] $tmp[2]"} && !exists $donegraph{"$tmp[2] $tmp[1] $tmp[3]"}){
 						#~ $donegraph{"$tmp[1] $tmp[2] $tmp[3]"} = $tmp[0];
@@ -1134,10 +1126,10 @@ sub findMotives_edgeres{
 				#~ $res{"mot"}{$j}{"FP"}++;
 				#print "$i $l $j\n";
 				#~ delete $res{"pred"}{$i}{$j}{$l};
-			#~ }
+			#~ } 
 		#~ }
 	}
-
+	
 	for(my $j = 0; $j < 13; $j++){
 		for my $i (@tf0){
 			for my $l (keys %{$res{"pred"}{$i}{$j}}){
@@ -1153,13 +1145,13 @@ sub findMotives_edgeres{
 }
 
 sub printres_gold{
-
+	
 	my $tmpoutall = '';
 	my $tmpout = '';
 	my $tmpNOG = "TFs not in graphlets:\n";
 	my $tmpoutn = '';
 	my $tmpNOGn = "Genes (no TF) not in graphlets:\n";
-
+	
 	print "\nGRAPHLETS:\n";
 	print "Type:";
 	$tmpoutall  .= "\nGRAPHLETS:\n";
@@ -1182,7 +1174,7 @@ sub printres_gold{
 	}
 	print "\t$i\n\n";
 	$tmpoutall  .= "\t$i";
-
+	
 	$tmpout  .= "TFs in graphlets:\nTF";
 	for my $j (0..12){
 		$tmpout  .= "\t";
@@ -1190,9 +1182,9 @@ sub printres_gold{
 	}
 	$tmpout  .= "\ttotal\n";
 	for my $i (@tf){
-
+		
 		if(0 != $res{"motNode"}{$i}{"true"}{"tot"}){
-			$tmpout  .= "$i";
+			$tmpout  .= "$i"; 
 			for my $j (0..12){
 				$tmpout  .= "\t$res{motNode}{$i}{true}{$j}";
 			}
@@ -1205,7 +1197,7 @@ sub printres_gold{
 		}
 		delete $res{"motNode"}{$i};
 	}
-
+	
 	$tmpoutn.= "Genes (no TF) in graphlets:\ngene";
 	for my $j (0..5){
 		$tmpoutn.= "\t";
@@ -1214,7 +1206,7 @@ sub printres_gold{
 	$tmpoutn.= "\ttotal\n";
 	for my $i (sort keys %{$res{"motNode"}}){
 		if(0 != $res{"motNode"}{$i}{"true"}{"tot"}){
-			$tmpoutn.= "$i";
+			$tmpoutn.= "$i"; 
 			for my $j (0..5){
 				$tmpoutn.= "\t$res{motNode}{$i}{true}{$j}";
 			}
@@ -1226,15 +1218,15 @@ sub printres_gold{
 			$outnetnodes{$i}[3] = 0;
 		}
 	}
-
-
+	
+	
 	open(F, ">$folder/$outfile") or die "can't open $folder/$outfile";#$countlist{$tmp[0]}{"TP"} .= "$tmp[1] $tmp[2] $tmp[3]\n";
 	print F "$tmpoutall\n\n";
 	print F "$tmpNOG\n\n";
 	print F "$tmpNOGn\n\n";
 	print F "$tmpout\n\n";
 	print F "$tmpoutn\n";
-
+	
 	print F "GRAPHLETS:\n\n";
 	for my $i (0..12){
 		print F "Type ";
@@ -1248,11 +1240,11 @@ sub printres_gold{
 		print F "\n";
 	}
 	close F;
-
+	
 }
 
 sub printres{
-
+	
 	#~ $res{"mot"}{"0"}{"TN"} = - $countt{"0"} + $tf * (($node-1)/2) * ($node - 2);#total max of posssible motives - #TP = #TN
 	#~ $res{"mot"}{"1"}{"TN"} = - $countt{"1"} +  $tf * (($tf-1)/2) * ($node - 2);
 	#~ $res{"mot"}{"2"}{"TN"} = - $countt{"2"}+  $tf * (($tf-1)/2) * ($node - 2);
@@ -1308,7 +1300,7 @@ sub printres{
 		$ctp += $countp{$j};
 		if($countt{$j}||$countp{$j}){$mt++;}
 	}
-
+	
 	#~ print "\n\nG\t#T\t#P\tTP\tFP\tTN\tFN\tR\tSPC\tP\tNPV\tFPR\tFDR\tFNR\tACC\tF1\tMCC\tinfor\tmarked\tJ\tSD\tK1\tK2\tO\tCR\tH\tREC\n";
 	print "\n\nG\t#T\t#P\tTP\tFP\tTN\tFN\tR\tP\tFPR\tACC\tF1\tMCC\tREC\n";
 	$outtxttable .= "\n\nG\t#T\t#P\tTP\tFP\tTN\tFN\tR\tSPC\tP\tNPV\tFPR\tFDR\tFNR\tACC\tF1\tMCC\tinfor\tmarked\tJ\tSD\tK1\tK2\tO\tCR\tH\tREC\n";
@@ -1367,7 +1359,7 @@ sub printres{
 			#~ print "$tmp[$i]\t";
 			$outtxttable .= "$tmp[$i]\t";
 		}
-	}
+	} 
 	#~ for(my $i = 0; $i < 23; $i++){
 	for my $i(0,1,2,3,4,6,8,11,12,13){
 		if($i > 3 && $tmp[$i] != 0 && abs($tmp[$i]) != 1 ){
@@ -1378,7 +1370,7 @@ sub printres{
 			print "$tmp[$i]\t";
 			#~ $outtxt .= "$tmp[$i]\t";
 		}
-	}
+	} 
 	#~ print "\t";
 	#~ $outtxt .= "\t";
 	if($res{"gm"}[4]){
@@ -1551,15 +1543,15 @@ sub printres{
 					}
 				}
 			}
-		}
+		}	
 	}
-
-
+	
+	
 	my $tmpout = '';
 	my $tmpNOG = "$fg TFs not in graphlets:\n";
 	my $tmpoutn = '';
 	my $tmpNOGn = "$fg Genes (no TF) not in graphlets:\n";
-
+		
 	$tmpout  .= "$fg TFs in graphlets:\nTF";
 	for my $j (0..12){
 		$tmpout  .= "\t";
@@ -1567,9 +1559,9 @@ sub printres{
 	}
 	$tmpout  .= "\ttotal\tRGD\tF1\n";
 	for my $i (@tf){
-
+		
 		if(0 != $res{"motNode"}{$i}{"true"}{"tot"}){
-			$tmpout  .= "$i";
+			$tmpout  .= "$i"; 
 			for my $j (0..12){
 				$tmpout  .= "\t$res{motNode}{$i}{true}{$j}";
 			}
@@ -1599,7 +1591,7 @@ sub printres{
 		}
 		delete $res{"motNode"}{$i}{"true"};
 	}
-
+	
 	$tmpoutn.= "$fg Genes (no TF) in graphlets:\ngene";
 	for my $j (0..5){
 		$tmpoutn.= "\t";
@@ -1609,7 +1601,7 @@ sub printres{
 	for my $i (sort keys %{$res{"motNode"}}){
 		if(exists $res{"motNode"}{$i}{"true"}){
 			if(0 != $res{"motNode"}{$i}{"true"}{"tot"}){
-				$tmpoutn.= "$i";
+				$tmpoutn.= "$i"; 
 				for my $j (0..5){
 					$tmpoutn.= "\t$res{motNode}{$i}{true}{$j}";
 				}
@@ -1639,13 +1631,13 @@ sub printres{
 			}
 		}
 	}
-
+	
 	my $tmpouti = '';
 	my $tmpNOGi = "$ffg TFs not in graphlets:\n";
 	my $tmpoutni = '';
 	my $tmpNOGni = "$ffg Genes (no TF) not in graphlets:\n";
-
-
+	
+	
 	$tmpouti  .= "$ffg TFs in graphlets:\nTF";
 	for my $j (0..12){
 		$tmpouti  .= "\t";
@@ -1653,9 +1645,9 @@ sub printres{
 	}
 	$tmpouti  .= "\ttotal\n";
 	for my $i (@tf0){
-
+		
 		if(0 != $res{"motNode"}{$i}{"pred"}{"tot"}){
-			$tmpouti  .= "$i";
+			$tmpouti  .= "$i"; 
 			for my $j (0..12){
 				$tmpouti  .= "\t$res{motNode}{$i}{pred}{$j}";
 			}
@@ -1668,7 +1660,7 @@ sub printres{
 		}
 		delete $res{"motNode"}{$i}{"pred"};
 	}
-
+	
 	$tmpoutni .= "$ffg Genes (no TF) in graphlets:\ngene";
 	for my $j (0..5){
 		$tmpoutni .= "\t";
@@ -1678,7 +1670,7 @@ sub printres{
 	for my $i (sort keys %{$res{"motNode"}}){
 		if(exists $res{"motNode"}{$i}{"pred"}){
 			if(0 != $res{"motNode"}{$i}{"pred"}{"tot"}){
-				$tmpoutni .= "$i";
+				$tmpoutni .= "$i"; 
 				for my $j (0..5){
 					$tmpoutni .= "\t$res{motNode}{$i}{pred}{$j}";
 				}
@@ -1691,8 +1683,8 @@ sub printres{
 			}
 		}
 	}
-
-
+	
+	
 	open(F, ">$folder/$outfile") or die "can't open $folder/$outfile";#$countlist{$tmp[0]}{"TP"} .= "$tmp[1] $tmp[2] $tmp[3]\n";
 	print F $outtxttable;
 	print F "$tmpNOG\n\n";
@@ -1703,9 +1695,9 @@ sub printres{
 	print F "$tmpNOGni\n\n";
 	print F "$tmpouti\n\n";
 	print F "$tmpoutni\n\n";
-
+	
 	#~ for my $i (sort keys %{$gdd{"gold"}{"TF"}}){
-		#~ print F "$i";
+		#~ print F "$i"; 
 		#~ for my $j (0..12){
 			#~ print F "\t$gdd{gold}{TF}{$i}[$j]";
 		#~ }
@@ -1727,7 +1719,7 @@ sub printres{
 	#~ print F "\ttotal\tAvg_REC";
 	#~ print F "\n";
 	#~ for my $i (sort keys %{$gdd{"gold"}{"noTF"}}){
-		#~ print F "$i";
+		#~ print F "$i"; 
 		#~ for my $j (0..5){
 			#~ print F "\t$gdd{gold}{noTF}{$i}[$j]";
 		#~ }
@@ -1749,7 +1741,7 @@ sub printres{
 	#~ print F "\ttotal";
 	#~ print F "\n";
 	#~ for my $i (sort keys %{$gdd{"inf"}{"TF"}}){
-		#~ print F "$i";
+		#~ print F "$i"; 
 		#~ for my $j (0..12){
 			#~ print F "\t$gdd{inf}{TF}{$i}[$j]";
 		#~ }
@@ -1765,7 +1757,7 @@ sub printres{
 	#~ print F "\ttotal\tAvg_REC";
 	#~ print F "\n";
 	#~ for my $i (sort keys %{$gdd{"inf"}{"noTF"}}){
-		#~ print F "$i";
+		#~ print F "$i"; 
 		#~ for my $j (0..5){
 			#~ print F "\t$gdd{inf}{noTF}{$i}[$j]";
 		#~ }
@@ -1773,7 +1765,7 @@ sub printres{
 		#~ print F "\n";
 	#~ }
 	#~ print F "\n\n";
-
+	
 	print F $outtxt;
 	close F;
 }
@@ -1783,15 +1775,14 @@ sub printres{
 getopt();
 loadGold();
 
+if($ff ne ''){
+	loadPred();
+	findMotives_edgeres();
+	printres();
+}
+else{
+	findMotives_gold();
+	printres_gold();
+}
 
-#if($ff ne ''){
-#	loadPred();
-#	findMotives_edgeres();
-#	printres();
-#}
-#else{
-#	findMotives_gold();
-#	printres_gold();
-#}
-
-#printNets();
+printNets();
