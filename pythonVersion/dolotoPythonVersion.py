@@ -23,19 +23,18 @@ def readDocFile(docFile):
 #obtener informacion desde la red de referencia
 def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes, res, inDegree, outDegree, done, node, case):
 
-    #obtenemos la informacion del archivo de referencia
-    referenceData = readDocFile(referenceFile)
-
     #definicion de variables a utilizar
     cc = 0;
     cc0 = 0;
     nodes = [];
     tfs = {};
 
-    #recorremos el arreglo y obtenemos los valores asociados a la data de la red
-    for element in referenceData:
-        if len(element.split("\t")) == 3:#solo si cumple con la cantidad de elementos generados
-            dataRow = element.split("\t")
+    dataInFile = readDocFile(referenceFile)
+
+    for element in dataInFile:
+        dataRow = element.replace("\n", "").split("\t")
+
+        if len(dataRow) == 3:#solo si cumple con la cantidad de elementos generados
 
             #obtenemos informacion de los nodos y la data en la red
             tfs.update({dataRow[0]:1})
@@ -46,32 +45,13 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
             #preguntamos por el valor si supera el umbral ingresado...
             if float(dataRow[2])>threshold:
 
-                if dataRow[0] not in net["true"].keys():#evaluamos si el nodo existe en el diccionario
-                    net["true"].update({dataRow[0]: {}})
-                net["true"][dataRow[0]].update({dataRow[1]:1})#actualizamos el valor de la key con respecto al nodo de conexion
+                net["true"].update({dataRow[0]: {dataRow[1]:1}})
+                outnet.update({dataRow[0]:{dataRow[1]:['P', 'A']}})#generamos el diccionario
+                outnetnodes.update({dataRow[0]: ['TF','p']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
+                outnetnodes.update({dataRow[1]: ['nTF','p']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
 
-                if dataRow[0] not in outnet.keys():
-                    outnet.update({dataRow[0]:{}})#generamos el diccionario
-                #if dataRow[1] not in outnet[dataRow[0]].keys():
-                outnet[dataRow[0]].update({dataRow[1]:['P', 'A']})
-
-                if dataRow[0] not in outnetnodes.keys():
-                    outnetnodes.update({dataRow[0]: ['-','-']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
-                    outnetnodes[dataRow[0]][0] = 'TF'
-                elif outnetnodes[dataRow[0]][0] != 'TF':
-                    outnetnodes[dataRow[0]][0] = 'TF'
-
-                if dataRow[1] not in outnetnodes.keys():
-                    outnetnodes.update({dataRow[1]: ['-','-']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
-                    outnetnodes[dataRow[1]][0] = 'nTF'
-
-                outnetnodes[dataRow[0]][1] = 'P'
-                outnetnodes[dataRow[1]][1] = 'P'
-
-                res["motNode"].update({dataRow[0]: {}})
-                res["motNode"].update({dataRow[1]: {}})
-                res["motNode"][dataRow[0]].update({"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,"tot",0]})
-                res["motNode"][dataRow[1]].update({"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,"tot",0]})
+                res["motNode"].update({dataRow[0]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,"tot",0]}})
+                res["motNode"].update({dataRow[1]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,"tot",0]}})
                 cc+=1
 
                 if dataRow[1] not in inDegree["true"]:
@@ -85,9 +65,7 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
 
             else:
                 if case == 1:
-                    if dataRow[0] not in net["true"].keys():#evaluamos si el nodo existe en el diccionario
-                        net["true"].update({dataRow[0]: {}})
-                    net["true"][dataRow[0]].update({dataRow[1]:0})#actualizamos el valor de la key con respecto al nodo de conexion
+                    net["true"].update({dataRow[0]: {dataRow[1]:0}})
                     cc0+=1
 
             if dataRow[0] not in done["true"].keys():
@@ -101,11 +79,8 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
     if case == 2:
         for element1 in done["true"]:
             for element2 in done["true"]:
-                if element1 not in net["true"].keys():
-                    net["true"].update({element1:{}})
-                net["true"][element1].update({element2:0})
+                net["true"].update({element1:{element2:0}})
                 cc0+=1
-
 
     tf = tfs.keys()
     tf.sort()
@@ -116,32 +91,7 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
     #$outtxttable .= "      \t#TFs\tn\t#P\t#N\n";
     #$outtxttable .= "REFERENCE :\t$tmp\t$node\t$cc\t$cc0\n";
     #$countgl[0] = $cc;
-
-#obtener informacion desde la red input
-def loadPred(inputFile):
-
-    #obtenemos la informacion del archivo de input
-    inputData = readDocFile(inputFile)
-
-    #definicion de variables temporales
-    cc = 0
-    cc0 = 0
-    nodes = []
-    tfs = {}
-    node = 0
-
-    #recorremos el arreglo y obtenemos los valores asociados a la data de la red
-    for element in inputData:
-        if len(element.split("\t")) == 3:#solo si cumple con la cantidad de elementos generados
-            dataRow = element.split("\t")
-
-            #obtenemos informacion de los nodos y la data en la red
-            tfs.update({dataRow[0]:1})
-            tfall.update({dataRow[0]:1})
-            nodeall.update({dataRow[0]:1})
-            nodeall.update({dataRow[1]:1})
-
-
+    return cc, cc0, nodes, tfs
 
 #manipulamos los parametros con argparse para un mejor control de los datos
 parser = argparse.ArgumentParser()#esto sustituye a la funcion getopt!!!
@@ -184,4 +134,4 @@ node=0#contador de nodos
 formatLine = "\nREFERENCE\t:\t%s\nINPUT\t\t:\t%s\nThreshold\t:\t%f\nCase\t\t:\t%d\n\n" % (fg_value, ffg_value, threshold, case)
 print formatLine
 
-loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes, res, inDegree, outDegree, done, node, case)
+cc_gold, cc0_gold, nodes_gold, tfs_gold = loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes, res, inDegree, outDegree, done, node, case)
