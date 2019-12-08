@@ -5,6 +5,76 @@ implementado en su version perl.
 
 import argparse
 
+#funcion que permite identificar el patron o motivo del triplete correspondiente asociado al tipo de graphlet
+def dotriplet_noij(value1, value2, value3, value4, value5, key1, key2, key3):
+
+    #$net{"true"}{$i}{$l}, $net{"true"}{$j}{$l}, $net{"true"}{$l}{$j}, $net{"true"}{$j}{$i}, $net{"true"}{$l}{$i}, $i, $j, $l
+    arrayResponse = []
+    if (key1 != key2) and (key1 != key3) and (key2 != key3):
+		if(value1 == 1) and (value2 == 0) and (value3 == 0) and (value4 == 0) and (value5 == 0):#type 1
+			arrayResponse = [0,key1,key2,key3]
+		elif (value1 == 0) and (value2 == 0) and (value3 == 0) and (value4 == 0) and (value5 == 1):#type 2
+			arrayResponse = [1,key1,key2,key3]
+		elif (value1 == 1) and (value2 == 0) and (value3 == 0) and (value4 == 1) and (value5 == 0):#type 3
+			arrayResponse = [2,key1,key2,key3]
+		elif (value1 == 0) and (value2 == 0) and (value3 == 1) and (value4 == 0) and (value5 == 0):#type 4
+			arrayResponse = [3,key1,key2,key3]
+		elif (value1 == 1) and (value2 == 1) and (value3 == 0) and (value4 == 0) and (value5 == 0):#type 5
+			arrayResponse = [4,key1,key2,key3]
+		elif (value1 == 1) and (value2 == 1) and (value3 == 0) and (value4 == 1) and (value5 == 0):#type 6
+			arrayResponse = [5,key1,key2,key3]
+		elif (value1 == 0) and (value2 == 0) and (value3 == 0) and (value4 == 1) and (value5 == 1):#type 7
+			arrayResponse = [6,key1,key2,key3]
+		elif (value1 == 1) and (value2 == 0) and (value3 == 0) and (value4 == 1) and (value5 == 1):#type 8
+			arrayResponse = [7,key1,key2,key3]
+		elif (value1 == 0) and (value2 == 1) and (value3 == 0) and (value4 == 0) and (value5 == 1):#type 9
+			arrayResponse = [8,key1,key2,key3]
+		elif (value1 == 1) and (value2 == 0) and (value3 == 1) and (value4 == 1) and (value5 == 0):#type 10
+			arrayResponse = [9,key1,key2,key3]
+		elif(value1 == 1 and value2 == 1 and value3 == 1 and value4 == 0 and value5 == 0):#type 11
+			arrayResponse = 10,key1,key2,key3]
+		elif(value1 == 1 and value2 == 0 and value3 == 1 and value4 == 1 and value5 == 1):#type 12
+			arrayResponse = 11,key1,key2,key3]
+		elif(value1 == 1 and value2 == 1 and value3 == 1 and value4 == 1 and value5 == 1):#type 13
+			arrayResponse = 12,key1,key2,key3]
+
+    return arrayResponse
+
+#funcion auxiliar que permite formar la key correspondiente
+def createKeyData(arrayElement, pos1, pos2, pos3):
+
+    keyData = "%s %s %s" % (arrayElement[pos1], arrayElement[pos2], arrayElement[pos3])
+    return keyData
+
+#funcion que permite encontrar los motivos en red gold
+def findMotives_gold(tf, done, outDegree, net, res):
+    donegraph = {}
+    #i= key1 l=key2 j=key3
+    for key in tf:
+        for key2 in done:
+            for key3 in outDegree["true"][key]:
+                responseTriplete = dotriplet_noij(net["true"][key1][key2], net["true"][key3][key2], net["true"][key2][key3], net["true"][key3][key1], net["true"][key2]{key1], key1, key3, key2)
+                if len(responseTriplete)>0:#validacion largo triplete...
+
+                    #preguntamos la existencia de los elementos
+                    keyData = "%s %s %s" % (responseTriplete[1], responseTriplete[2], responseTriplete[3])
+                    if keyData not in donegraph.keys():
+                        donegraph.update({keyData:responseTriplete[0]})
+                        donegraph.update({createKeyData(responseTriplete, 1,3,2):responseTriplete[0]})
+                        donegraph.update({createKeyData(responseTriplete, 2,1,3):responseTriplete[0]})
+                        donegraph.update({createKeyData(responseTriplete, 2,3,1):responseTriplete[0]})
+                        donegraph.update({createKeyData(responseTriplete, 3,1,2):responseTriplete[0]})
+                        donegraph.update({createKeyData(responseTriplete, 3,2,1):responseTriplete[0]})
+
+                        res["motNode"][responseTriplete[1]]["true"][responseTriplete[0]]+=1
+                        res["motNode"][responseTriplete[2]]["true"][responseTriplete[0]]+=1
+                        res["motNode"][responseTriplete[3]]["true"][responseTriplete[0]]+=1
+
+						res["motNode"][responseTriplete[1]]["true"]["tot"]+=1
+						res["motNode"][responseTriplete[2]]["true"]["tot"]+=1
+						res["motNode"][responseTriplete[3]]["true"]["tot"]+=1
+    return donegraph
+
 #funcion que permite leer un archivo y retornar un array con la data del documento...
 def readDocFile(docFile):
 
@@ -21,7 +91,7 @@ def readDocFile(docFile):
     return dataInFile
 
 #obtener informacion desde la red de referencia
-def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes, res, inDegree, outDegree, done, node, case):
+def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes, res, inDegree, outDegree, done, node, case, tf):
 
     #definicion de variables a utilizar
     cc = 0;
@@ -50,8 +120,8 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
                 outnetnodes.update({dataRow[0]: ['TF','p']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
                 outnetnodes.update({dataRow[1]: ['nTF','p']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
 
-                res["motNode"].update({dataRow[0]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,"tot",0]}})
-                res["motNode"].update({dataRow[1]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,"tot",0]}})
+                res["motNode"].update({dataRow[0]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,{"tot":0},0]}})
+                res["motNode"].update({dataRow[1]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,{"tot":0},0]}})
                 cc+=1
 
                 if dataRow[1] not in inDegree["true"]:
@@ -91,7 +161,7 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
     #$outtxttable .= "      \t#TFs\tn\t#P\t#N\n";
     #$outtxttable .= "REFERENCE :\t$tmp\t$node\t$cc\t$cc0\n";
     #$countgl[0] = $cc;
-    return cc, cc0, nodes, tfs
+    return cc, cc0, nodes, tfs, tf
 
 #manipulamos los parametros con argparse para un mejor control de los datos
 parser = argparse.ArgumentParser()#esto sustituye a la funcion getopt!!!
@@ -130,8 +200,15 @@ inDegree = {"true": {}, "pred": {}}#indegree
 outDegree = {"true": {}, "pred": {}}#outDegree
 done = {"true": {}, "pred": {}}#all nodes
 node=0#contador de nodos
+
+#definicion arreglos
+tf = []#true TFs
+tf0 = []#pred TFs
+
 #formato de impresion data input
 formatLine = "\nREFERENCE\t:\t%s\nINPUT\t\t:\t%s\nThreshold\t:\t%f\nCase\t\t:\t%d\n\n" % (fg_value, ffg_value, threshold, case)
 print formatLine
 
-cc_gold, cc0_gold, nodes_gold, tfs_gold = loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes, res, inDegree, outDegree, done, node, case)
+cc_gold, cc0_gold, nodes_gold, tfs_gold, tf = loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes, res, inDegree, outDegree, done, node, case, tf)
+
+donegraph = findMotives_gold(tf, done, outDegree, net, res)
