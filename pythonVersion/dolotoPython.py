@@ -1,5 +1,32 @@
 import argparse
 
+def printres_gold(dictGraphlet):
+    tmpoutall = ''
+    tmpout = ''
+    tmpNOG = "TFs not in graphlets:\n"
+    tmpoutn = ''
+    tmpNOGn = "Genes (no TF) not in graphlets:\n"
+
+    print "\nGRAPHLETS:\n"
+    print "Type:",
+    tmpoutall  += "\nGRAPHLETS:\n"
+    tmpoutall  += "Type:"
+    for j in range (13):
+        print "\t",
+        print str(j+1),
+        tmpoutall += "\t"
+        tmpoutall += str(j+1)
+
+    print "\ttotal\ncount",
+    tmpoutall  += "\ttotal\ncount"
+    i = 0
+    for j in range (13):
+        print "\t",
+        print dictGraphlet[j],
+        tmpoutall  += "\t"
+        tmpoutall  += str(dictGraphlet[j])
+        i += dictGraphlet[j]
+
 #funcion que permite identificar el patron o motivo del triplete correspondiente asociado al tipo de graphlet
 def dotriplet_noij(value1, value2, value3, value4, value5, key1, key2, key3):
 
@@ -185,3 +212,5 @@ tf, nodes = loadGold(referenceFile, threshold, net, outDegree, done)
 
 #hacemos la busqueda de los motivos en base a las referencias entregadas y a las combinaciones generadas...
 dictGraphlet, donegraph= findMotives_gold(tf, done, outDegree, net)
+
+printres_gold(dictGraphlet)
