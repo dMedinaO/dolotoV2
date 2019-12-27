@@ -1,14 +1,18 @@
 sub loadGold{
+
 	my $di = '';
 	open (F, "<$f") or die "can't open $f\n$!\n";
 	{ local $/=undef;  $di=<F>; }
 	my @d=split /[\r\n]+/, $di;
 	close F;
+
 	my $cc = 0;
 	my $cc0 = 0;
 	my @nodes = ();
 	my %tfs = ();
+
 	if($case == 1){
+
 		while(@d){
 			if($d[0] =~ /\t/){
 				my @t =  split("\t",shift @d);
@@ -16,6 +20,7 @@ sub loadGold{
 				$tfall{$t[0]} = 1;
 				$nodeall{$t[0]} = 1;
 				$nodeall{$t[1]} = 1;
+
 				if($t[2] > $threshold){
 					$net{"true"}{$t[0]}{$t[1]} = 1;
 					$outnet{$t[0]}{$t[1]}[0] = 'P';
@@ -62,15 +67,9 @@ sub loadGold{
 				shift @d;
 			}
 		}
-			#~ for my $i(keys %{$done{"true"}}){
-				#~ for my $j (keys %{$done{"true"}}){
-					#~ if(!defined $net{"true"}{$i}{$j}){
-						#~ $net{"true"}{$i}{$j} = 0;
-						#~ $cc0++;
-					#~ }
-				#~ }
-			#~ }
 	}
+
+
 	elsif($case == 2){
 		while(@d){
 			if($d[0] =~ /\t/){

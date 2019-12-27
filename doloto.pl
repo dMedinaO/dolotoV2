@@ -889,10 +889,14 @@ my $edgenet = "
 
 sub findMotives_gold{
 	my %donegraph = ();
+	my $contError=0;
+	my $contOK =0;
 	for my $i(@tf){#tfs in gold
 		for my $l (keys %{$done{"true"}}){
+			my $contKey=0;
 			for my $j (@{$outDegree{"true"}{$i}}){
 				if(defined$net{"true"}{$i}{$l} && defined$net{"true"}{$j}{$l} && defined$net{"true"}{$l}{$j} && defined$net{"true"}{$j}{$i} && defined$net{"true"}{$l}{$i}){
+					$contOK++;
 					my (@tmp) = dotriplet_noij($net{"true"}{$i}{$l}, $net{"true"}{$j}{$l}, $net{"true"}{$l}{$j}, $net{"true"}{$j}{$i}, $net{"true"}{$l}{$i}, $i, $j, $l);
 
 					if($tmp[1] && !exists $donegraph{"$tmp[1] $tmp[2] $tmp[3]"}){
@@ -915,10 +919,14 @@ sub findMotives_gold{
 						$res{"true"}{$tmp[1]}{$tmp[0]}{"$tmp[2] $tmp[3]"} = 1;
 						$countt{$tmp[0]}++;
 					}
+				}else{
+					$contError++;
 				}
 			}
 		}
 	}
+
+	print "$contOK -- $contError\n";
 }
 
 

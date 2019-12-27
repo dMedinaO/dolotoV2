@@ -1,0 +1,9 @@
+
+REFERENCE       	:	reference.tsv
+INPUT            	:	inferred.tsv
+Threshold        	:	0
+Case             	:	1
+
+           	#TFs	n	#P	#N
+REFERENCE :	90	1019	1640	0
+39 -- 1671121

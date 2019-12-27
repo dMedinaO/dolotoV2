@@ -32,11 +32,11 @@ def dotriplet_noij(value1, value2, value3, value4, value5, key1, key2, key3):
 		elif (value1 == 1) and (value2 == 0) and (value3 == 1) and (value4 == 1) and (value5 == 0):#type 10
 			arrayResponse = [9,key1,key2,key3]
 		elif(value1 == 1 and value2 == 1 and value3 == 1 and value4 == 0 and value5 == 0):#type 11
-			arrayResponse = 10,key1,key2,key3]
+			arrayResponse = [10,key1,key2,key3]
 		elif(value1 == 1 and value2 == 0 and value3 == 1 and value4 == 1 and value5 == 1):#type 12
-			arrayResponse = 11,key1,key2,key3]
+			arrayResponse = [11,key1,key2,key3]
 		elif(value1 == 1 and value2 == 1 and value3 == 1 and value4 == 1 and value5 == 1):#type 13
-			arrayResponse = 12,key1,key2,key3]
+			arrayResponse = [12,key1,key2,key3]
 
     return arrayResponse
 
@@ -49,30 +49,20 @@ def createKeyData(arrayElement, pos1, pos2, pos3):
 #funcion que permite encontrar los motivos en red gold
 def findMotives_gold(tf, done, outDegree, net, res):
     donegraph = {}
+    contError=0
+    contOK=0
     #i= key1 l=key2 j=key3
-    for key in tf:
-        for key2 in done:
-            for key3 in outDegree["true"][key]:
-                responseTriplete = dotriplet_noij(net["true"][key1][key2], net["true"][key3][key2], net["true"][key2][key3], net["true"][key3][key1], net["true"][key2]{key1], key1, key3, key2)
-                if len(responseTriplete)>0:#validacion largo triplete...
+    for key1 in tf:
+        for key2 in done['true']:
+            for key3 in outDegree["true"][key1]:
+                try:
+                    responseTriplete = dotriplet_noij(net["true"][key1][key2], net["true"][key3][key2], net["true"][key2][key3], net["true"][key3][key1], net["true"][key2][key1], key1, key3, key2)
+                    print responseTriplete
+                    contOK+=1
+                except:
+                    contError+=1
+    print contOK, " --- ", contError
 
-                    #preguntamos la existencia de los elementos
-                    keyData = "%s %s %s" % (responseTriplete[1], responseTriplete[2], responseTriplete[3])
-                    if keyData not in donegraph.keys():
-                        donegraph.update({keyData:responseTriplete[0]})
-                        donegraph.update({createKeyData(responseTriplete, 1,3,2):responseTriplete[0]})
-                        donegraph.update({createKeyData(responseTriplete, 2,1,3):responseTriplete[0]})
-                        donegraph.update({createKeyData(responseTriplete, 2,3,1):responseTriplete[0]})
-                        donegraph.update({createKeyData(responseTriplete, 3,1,2):responseTriplete[0]})
-                        donegraph.update({createKeyData(responseTriplete, 3,2,1):responseTriplete[0]})
-
-                        res["motNode"][responseTriplete[1]]["true"][responseTriplete[0]]+=1
-                        res["motNode"][responseTriplete[2]]["true"][responseTriplete[0]]+=1
-                        res["motNode"][responseTriplete[3]]["true"][responseTriplete[0]]+=1
-
-						res["motNode"][responseTriplete[1]]["true"]["tot"]+=1
-						res["motNode"][responseTriplete[2]]["true"]["tot"]+=1
-						res["motNode"][responseTriplete[3]]["true"]["tot"]+=1
     return donegraph
 
 #funcion que permite leer un archivo y retornar un array con la data del documento...
@@ -93,20 +83,20 @@ def readDocFile(docFile):
 #obtener informacion desde la red de referencia
 def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes, res, inDegree, outDegree, done, node, case, tf):
 
-    #definicion de variables a utilizar
-    cc = 0;
-    cc0 = 0;
-    nodes = [];
-    tfs = {};
+    #definicion de variables auxiliares a utilizar
+    cc = 0
+    cc0 = 0
+    nodes = []
+    tfs = {}
 
-    dataInFile = readDocFile(referenceFile)
+    dataInFile = readDocFile(referenceFile)#lectura de documento
 
     for element in dataInFile:
         dataRow = element.replace("\n", "").split("\t")
 
         if len(dataRow) == 3:#solo si cumple con la cantidad de elementos generados
 
-            #obtenemos informacion de los nodos y la data en la red
+            #obtenemos informacion de los nodos y la data en la red, adicionando como 1 cuando nodo existe
             tfs.update({dataRow[0]:1})
             tfall.update({dataRow[0]:1})
             nodeall.update({dataRow[0]:1})
@@ -115,19 +105,19 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
             #preguntamos por el valor si supera el umbral ingresado...
             if float(dataRow[2])>threshold:
 
-                net["true"].update({dataRow[0]: {dataRow[1]:1}})
+                net["true"].update({dataRow[0]: {dataRow[1]:1}})#la red existe y presenta node1 -> node2 -> 1!
                 outnet.update({dataRow[0]:{dataRow[1]:['P', 'A']}})#generamos el diccionario
                 outnetnodes.update({dataRow[0]: ['TF','p']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
                 outnetnodes.update({dataRow[1]: ['nTF','p']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
 
-                res["motNode"].update({dataRow[0]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,{"tot":0},0]}})
-                res["motNode"].update({dataRow[1]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,{"tot":0},0]}})
+                res["motNode"].update({dataRow[0]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,"tot",0]}})
+                res["motNode"].update({dataRow[1]: {"true": [0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,"rec",0,"tot",0]}})
                 cc+=1
 
-                if dataRow[1] not in inDegree["true"]:
+                if dataRow[1] not in inDegree["true"].keys():
                     inDegree["true"].update({dataRow[1]: []})
 
-                if dataRow[0] not in outDegree["true"]:
+                if dataRow[0] not in outDegree["true"].keys():
                     outDegree["true"].update({dataRow[0]: []})
 
                 outDegree["true"][dataRow[0]].append(dataRow[1])
@@ -176,7 +166,7 @@ parser.add_argument('--output', '-o', help='name of output file', default='outpu
 
 args = parser.parse_args()
 
-#chequeamos las variables de entrada
+#variables desde linea de comando
 referenceFile = args.reference
 inputFile = args.input
 threshold = args.threshold
@@ -184,26 +174,50 @@ case = args.case
 folder = args.folder
 outfile = args.output
 
-#variables adicionales, REVISAR SI SON NECESARIAS O NO
+#variables adicionales
 fg_value = referenceFile.split("/")[-1]
 ffg_value = inputFile.split("/")[-1]
 id_value = "%s_%s" % (fg_value, ffg_value)
 
-#definicion de variables relevantes para obtener informacion sobre los TFs
-tfall= {}#all TFs
-nodeall= {}#all TFs
+#definicion de diccionarios
 net = {"true": {}, "pred": {}}#tf->gene 1, 0 else /// #p(tf->gene)>threshold 1, 0 else
-outnet = {}
-outnetnodes={}
-res = {"true": {}, "pred": {}, "mot": {}, "motNode": {}, "gm": [0,0,0,0,0], "global": [0,0,0,0]};#motives
 inDegree = {"true": {}, "pred": {}}#indegree
 outDegree = {"true": {}, "pred": {}}#outDegree
 done = {"true": {}, "pred": {}}#all nodes
-node=0#contador de nodos
+res = {"true": {}, "pred": {}, "mot": {}, "motNode": {}, "gm": [0,0,0,0,0], "global": [0,0,0,0]};#motives
 
-#definicion arreglos
+#definicion de arreglos
 tf = []#true TFs
 tf0 = []#pred TFs
+
+#definicion diccionarios auxiliares
+tfall= {}#all TFs
+nodeall= {}#all TFs
+outnet = {}
+outnetnodes={}
+countt = {}#motive counts
+countp = {}
+countlist = {}#to store lists of graphlets TP, FP and FN
+
+#contadores y array de contadores
+node=0#contador de nodos
+TNG = 0#contador
+countgl = [0,0]
+
+#defincion variables de formato
+colorTFTP = '#ff6f00'
+colorTFFN = '#bf008f'
+colorTFFP = '#ffb300'
+colorEFTP = '#0276cf'
+colorEFFN = '#3b3176'
+colorEFFP = '#ffffff'
+coloredgeTP = '#000000'
+coloredgeFN = '#bf008f'
+coloredgeFP = '#ffb300'
+
+#defincion variables de texto
+outtxt = ""
+outtxttable = ""
 
 #formato de impresion data input
 formatLine = "\nREFERENCE\t:\t%s\nINPUT\t\t:\t%s\nThreshold\t:\t%f\nCase\t\t:\t%d\n\n" % (fg_value, ffg_value, threshold, case)

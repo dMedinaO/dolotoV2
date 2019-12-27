@@ -1,11 +1,12 @@
 sub findMotives_gold{
+	my $contData =0
 	my %donegraph = ();
 	for my $i(@tf){#tfs in gold
 		for my $l (keys %{$done{"true"}}){
 			for my $j (@{$outDegree{"true"}{$i}}){
 				if(defined$net{"true"}{$i}{$l} && defined$net{"true"}{$j}{$l} && defined$net{"true"}{$l}{$j} && defined$net{"true"}{$j}{$i} && defined$net{"true"}{$l}{$i}){
 					my (@tmp) = dotriplet_noij($net{"true"}{$i}{$l}, $net{"true"}{$j}{$l}, $net{"true"}{$l}{$j}, $net{"true"}{$j}{$i}, $net{"true"}{$l}{$i}, $i, $j, $l);
-
+					$contData++;
 					if($tmp[1] && !exists $donegraph{"$tmp[1] $tmp[2] $tmp[3]"}){
 
 						#~ if($tmp[0] == 10){
