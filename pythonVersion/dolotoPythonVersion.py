@@ -105,7 +105,16 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
             #preguntamos por el valor si supera el umbral ingresado...
             if float(dataRow[2])>threshold:
 
-                net["true"].update({dataRow[0]: {dataRow[1]:1}})#la red existe y presenta node1 -> node2 -> 1!
+                if dataRow[0] not in net["true"].keys():
+                    net["true"].update({dataRow[0]:{}})
+                    net["true"][dataRow[0]].update({dataRow[1]:1})#la red existe y presenta node1 -> node2 -> 1!
+                else:
+                    net["true"][dataRow[0].update({dataRow[1]:1})#la red existe y presenta node1 -> node2 -> 1!
+
+                if dataRow[0] not in outnet.keys():
+                    outnet.update({dataRow[0]:{}})
+                    outnet.update({dataRow[0]:{dataRow[1]:['P', 'A']}})#generamos el diccionario
+                else:
                 outnet.update({dataRow[0]:{dataRow[1]:['P', 'A']}})#generamos el diccionario
                 outnetnodes.update({dataRow[0]: ['TF','p']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
                 outnetnodes.update({dataRow[1]: ['nTF','p']})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
@@ -125,7 +134,12 @@ def loadGold(referenceFile, tfall, nodeall, threshold, net, outnet, outnetnodes,
 
             else:
                 if case == 1:
-                    net["true"].update({dataRow[0]: {dataRow[1]:0}})
+                    if dataRow[0] not in net["true"].keys():
+                        net["true"].update({dataRow[0]:{}})
+                        net["true"].update({dataRow[0]: {dataRow[1]:0}})#la red existe y presenta node1 -> node2 -> 1!
+                    else:
+                        net["true"].update({dataRow[0]: {dataRow[1]:0}})#la red existe y presenta node1 -> node2 -> 1!
+
                     cc0+=1
 
             if dataRow[0] not in done["true"].keys():
