@@ -25,7 +25,9 @@ sub loadPred{
 				if(exists $net{"true"}{$t[0]}{$t[1]}){#si existe el hash nodo1 y nodo2
 					if($t[2] > $threshold){#superar el umbral
 						$net{"pred"}{$t[0]}{$t[1]} = 1;#update pred de la clave nodo1-nodo2
+
 						$outnet{$t[0]}{$t[1]}[1] = 'P';#uodate dic de outnet[nodo1][nodo2]
+
 						if(!defined $outnetnodes{$t[0]}){#solo si la key existe en forma de arreglo...
 							$outnetnodes{$t[0]}[0] = 'TF';#actualizamos la pocision [node1][0]
 						}

@@ -241,8 +241,39 @@ def createdDicForGraphles():
 
     return dictData
 
+#funcion que permite cargar la red de inferencia, genera estructuras de datos para soportar las relaciones y mantener la data de los nodos
+def loadPred(inferredFile, , threshold, net, outDegree, inDegree, done, res, case, outnet, outnetnodes):
+
+    #variables para la manipulacion de datos
+    tf = {}
+    nodes = []
+    contTrue = 0
+    contFalse = 0
+
+    #hacemos la lectura de la informacion...
+    fileOpen = open(inferredFile, 'r')
+    line = fileOpen.readline()
+
+    while line:
+
+        dataInLine = line.replace("\n", "").split("\t")#is a tsv format file
+        if len(dataInLine)==3:#validacion de division de elementos correcta
+            tf.update({dataInLine[0]:1})
+            nodes.append(dataInLine[0])
+            nodes.append(dataInLine[1])
+
+            if dataInLine[1] not i net["true"][dataInLine[0]].keys():
+                if float(dataInLine[2])>threshold:
+                    if dataInLine[0] not in net["pred"]:
+                        net["pred"].update({dataInLine[0]:{}})
+                    net["pred"][dataInLine[0]].update({dataInLine[1]:1})
+
+                    outnet[dataInLine[0]][dataInLine[1]][1] = "P"
+                    
+
+
 #funcion que permite cargar la red de referencia, genera estructuras de datos para soportar las relaciones y mantener la data de los nodos
-def loadGold(referenceFile, threshold, net, outDegree, done, res, case):
+def loadGold(referenceFile, threshold, net, outDegree, inDegree, done, res, case):
 
     #variables para la manipulacion de datos
     tf = {}
@@ -267,12 +298,11 @@ def loadGold(referenceFile, threshold, net, outDegree, done, res, case):
 
             if float(dataInLine[2]) > threshold:
                 contTrue+=1
+
                 #trabajamos con la data de elementos en net
                 if dataInLine[0] not in net["true"].keys():
                     net["true"].update({dataInLine[0]:{}})
-                    net["true"][dataInLine[0]].update({dataInLine[1]:1})
-                else:
-                    net["true"][dataInLine[0]].update({dataInLine[1]:1})
+                net["true"][dataInLine[0]].update({dataInLine[1]:1})
 
                 #agregamos la informacion al dict done
                 if dataInLine[0] not in done["true"].keys():
@@ -285,6 +315,11 @@ def loadGold(referenceFile, threshold, net, outDegree, done, res, case):
                 if dataInLine[0] not in outDegree["true"].keys():
                     outDegree["true"].update({dataInLine[0]:[]})
                 outDegree["true"][dataInLine[0]].append(dataInLine[1])
+
+                #trabajamos con el diccionario inDegree
+                if dataInLine[1] not in inDegree["true"].keys():
+                    inDegree["true"].update({dataInLine[1]:[]})
+                inDegree["true"][dataInLine[1]].append(dataInLine[0])
 
                 #trabajamos con el diccionario res
                 dictGrapah = createdDicForGraphles()
@@ -301,29 +336,28 @@ def loadGold(referenceFile, threshold, net, outDegree, done, res, case):
                 #trabajamos con el dicccionario outnet
                 if dataInLine[0] not in outnet.keys():
                     outnet.update({dataInLine[0]:{}})
-                    outnet.update({dataInLine[0]:{dataInLine[1]:['P', 'A']}})#generamos el diccionario
-                else:
-                    outnet.update({dataInLine[0]:{dataInLine[1]:['P', 'A']}})#generamos el diccionario
+                outnet.update({dataInLine[0]:{dataInLine[1]:['P', 'A']}})#generamos el diccionario
             else:
-
                 if case == 1:
                     contFalse+=1
                     if dataInLine[0] not in net["true"].keys():
                         net["true"].update({dataInLine[0]:{}})
-                        net["true"][dataInLine[0]].update({dataInLine[1]:0})#la red existe y presenta node1 -> node2 -> 1!
-                    else:
-                        net["true"][dataInLine[0]].update({dataInLine[1]:0})#la red existe y presenta node1 -> node2 -> 1!
+                    net["true"][dataInLine[0]].update({dataInLine[1]:0})#la red existe y presenta node1 -> node2 -> 1!
 
         line = fileOpen.readline()
     fileOpen.close()
 
     if case == 2:
-        for element1 in done["true"].keys():
-            for element2 in done["true"].keys():
-                if element1 not in net["true"].keys():
-                    net["true"].update({element1:{}})
-                net["true"][element1].update({element2:0})
-                contFalse+=1
+        for key in done["true"].keys():
+            for key2 in done["true"].keys():
+                if key not in net["true"].keys():
+                    net["true"].update({key:{}})
+                    net["true"][key].update({key2:0})
+                    contFalse+=1
+                else:
+                    if key2 not in net["true"][key].keys():
+                        net["true"][key].update({key2:0})
+                        contFalse+=1
 
     #obtenemos los valores finales para hacer el resumen
     tf = tf.keys()
@@ -332,7 +366,6 @@ def loadGold(referenceFile, threshold, net, outDegree, done, res, case):
     print "           \t#TFs\tn\t#P\t#N\n"
     print "REFERENCE :\t%d\t%d\t%d\t%d\n" % (len(tf), len(nodes), contTrue, contFalse)
 
-    print len(net["true"])
     return tf, nodes, outnetnodes, outnet
 
 #definicion de variables provenientes de consola, se trabajan con argparse para una mejor manipulacion
@@ -373,6 +406,7 @@ else:
 #definicion de diccionarios y variables auxiliares
 net = {"true": {}, "pred": {}}
 outDegree = {"true": {}, "pred": {}}
+inDegree = {"true": {}, "pred": {}}
 done = {"true": {}, "pred": {}}
 res = {"true": {}, "pred": {}, "mot": {}, "motNode": {}, "gm": [0,0,0,0,0], "global": [0,0,0,0]};#motives
 
@@ -385,7 +419,7 @@ outtxttable = "\nREFERENCE\t:\t%s\nINPUT\t\t:\t%s\nThreshold\t:\t%.2f\nCase\t\t:
 print outtxttable
 
 #cargamos la data de la red...
-tf, nodes, outnetnodes, outnet = loadGold(referenceFile, threshold, net, outDegree, done, res, case)
+tf, nodes, outnetnodes, outnet = loadGold(referenceFile, threshold, net, outDegree, inDegree, done, res, case)
 
 #hacemos la busqueda de los motivos en base a las referencias entregadas y a las combinaciones generadas...
 dictGraphlet, donegraph= findMotives_gold(tf, done, outDegree, net, res)
