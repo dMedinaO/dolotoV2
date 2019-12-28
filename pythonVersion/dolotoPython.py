@@ -1,5 +1,59 @@
 import argparse
 
+#funcion que permite exportar la red en formato xml
+def printNets(outnetnodes, id, inferredFile, outnet, folder, outfile):
+
+    #definicion de variables auxiliares
+    nodesx = ""
+    nodestable = ""
+    nodestableD3 = ""
+    edgesx = ""
+    edgestable = ""
+    edgestableD3 = ""
+    numnodes = len(outnetnodes.keys())
+    xdim = numnodes
+    ydim = 2*numnodes/3
+    xcent = xdim/2
+    ycent = ydim/2
+
+    headnet = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+    headnet+= "<graph id=\"9908\" label=\"%s\" directed=\"1\" cy:documentVersion=\"3.0\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:cy=\"http://www.cytoscape.org\" xmlns=\"http://www.cs.rpi.edu/XGMML\">\n" % id
+    headnet+= "<att name=\"networkMetadata\">\n<rdf:RDF>\n<rdf:Description rdf:about=\"http://www.cytoscape.org/\">\n<dc:type>Regulatory Interaction</dc:type>\n<dc:description>LoTo comparison of directed networks</dc:description>\n<dc:identifier>N/A</dc:identifier>\n<dc:date>2015</dc:date>\n"
+    headnet+= "<dc:title>%s</dc:title>\n<dc:source>http://www.cytoscape.org/</dc:source>\n<dc:format>Cytoscape-XGMML</dc:format>\n</rdf:Description>\n</rdf:RDF>\n</att>" % id
+    headnet+= "<att name=\"shared name\" value=\"%s\" type=\"string\"/>\n<att name=\"selected\" value=\"1\" type=\"boolean\"/>\n<att name=\"name\" value=\"%s\" type=\"string\"/>\n<att name=\"__Annotations\" type=\"list\">\n</att>\n" % (id, id)
+    headnet+= "<graphics>\n<att name=\"NETWORK_TITLE\" value=\"%s\" type=\"string\"/>\n" % id
+    headnet+= "<att name=\"NETWORK_CENTER_Y_LOCATION\" value=\"-%f\" type=\"string\"/>\n<att name=\"NETWORK_HEIGHT\" value=\"%f\" type=\"string\"/>\n<att name=\"NETWORK_DEPTH\" value=\"0.0\" type=\"string\"/>\n" % (ycent, ydim)
+    headnet+= "<att name=\"NETWORK_CENTER_Z_LOCATION\" value=\"0.0\" type=\"string\"/>\n<att name=\"NETWORK_BACKGROUND_PAINT\" value=\"#ffffff\" type=\"string\"/>\n<att name=\"NETWORK_SCALE_FACTOR\" value=\"2.5\" type=\"string\"/>\n"
+    headnet+= "<att name=\"NETWORK_NODE_SELECTION\" value=\"true\" type=\"string\"/>\n<att name=\"NETWORK_CENTER_X_LOCATION\" value=\"-%f\" type=\"string\"/>\n<att name=\"NETWORK_EDGE_SELECTION\" value=\"true\" type=\"string\"/>\n" % xcent
+    headnet+= "<att name=\"NETWORK_WIDTH\" value=\"%f\" type=\"string\"/>\n</graphics>\n" % xdim
+
+    nodenet = "<node id=\"XXXXX\" label=\"YYYYY\">\n<att name=\"selected\" value=\"0\" type=\"boolean\"/>\n<att name=\"name\" value=\"YYYYY\" type=\"string\"/>\n<att name=\"type\" value=\"PPPPP\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"graphlet degree in reference\" value=\"MMMMM\" type=\"string\"/>\n<att name=\"RGD\" value=\"OOOOO\" type=\"string\"/>\n<att name=\"F1\" value=\"QQQQQ\" type=\"string\"/>\n<att name=\"graphlet degree in compared\" value=\"NNNNN\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"class\" value=\"LLLLL\" type=\"string\"/>\n<att name=\"presence in reference\" value=\"JJJJJ\" type=\"string\"/>\n<att name=\"presence in compared\" value=\"KKKKK\" type=\"string\"/>\n<att name=\"color\" value=\"ZZZZZ\" type=\"string\"/>\n"
+    nodenet+= "<graphics y=\"-%f\" fill=\"ZZZZZ\" x=\"-%f\" outline=\"#333333\" h=\"35.0\" z=\"0.0\" width=\"3.0\" w=\"35.0\" type=\"ROUND_RECTANGLE\">\n" % (ycent, xcent)
+    nodenet+= "<att name=\"NODE_CUSTOMGRAPHICS_POSITION_1\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_4\" value=\"org.cytoscape.ding.customgraphics.NullCustomGraphics,0,[ Remove Graphics ],\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_CUSTOMGRAPHICS_5\" value=\"org.cytoscape.ding.customgraphics.NullCustomGraphics,0,[ Remove Graphics ],\" type=\"string\"/>\n<att name=\"NODE_SELECTED_PAINT\" value=\"#ffff00\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_CUSTOMGRAPHICS_2\" value=\"org.cytoscape.ding.customgraphics.NullCustomGraphics,0,[ Remove Graphics ],\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_SIZE_4\" value=\"0.0\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_SIZE_9\" value=\"0.0\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_DEPTH\" value=\"0.0\" type=\"string\"/>\n<att name=\"NODE_BORDER_STROKE\" value=\"SOLID\" type=\"string\"/>\n<att name=\"NODE_NESTED_NETWORK_IMAGE_VISIBLE\" value=\"true\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_CUSTOMGRAPHICS_3\" value=\"org.cytoscape.ding.customgraphics.NullCustomGraphics,0,[ Remove Graphics ],\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_POSITION_9\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_SIZE_7\" value=\"0.0\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_TRANSPARENCY\" value=\"255\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_POSITION_3\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_9\" value=\"org.cytoscape.ding.customgraphics.NullCustomGraphics,0,[ Remove Graphics ],\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_LABEL_FONT_SIZE\" value=\"12\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_POSITION_4\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_7\" value=\"org.cytoscape.ding.customgraphics.NullCustomGraphics,0,[ Remove Graphics ],\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_LABEL_COLOR\" value=\"#000000\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_6\" value=\"org.cytoscape.ding.customgraphics.NullCustomGraphics,0,[ Remove Graphics ],\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_POSITION_6\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_CUSTOMGRAPHICS_POSITION_2\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_SIZE_2\" value=\"0.0\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_POSITION_7\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_SIZE_6\" value=\"0.0\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_LABEL_WIDTH\" value=\"200.0\" type=\"string\"/>\n<att name=\"NODE_VISIBLE\" value=\"true\" type=\"string\"/>\n<att name=\"NODE_SELECTED\" value=\"false\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_POSITION_8\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_POSITION_5\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_CUSTOMGRAPHICS_1\" value=\"org.cytoscape.ding.customgraphics.NullCustomGraphics,0,[ Remove Graphics ],\" type=\"string\"/>\n<att name=\"NODE_LABEL_POSITION\" value=\"C,C,c,0.00,0.00\" type=\"string\"/>\n<att name=\"NODE_TOOLTIP\" value=\"\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_8\" value=\"org.cytoscape.ding.customgraphics.NullCustomGraphics,0,[ Remove Graphics ],\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_CUSTOMGRAPHICS_SIZE_5\" value=\"0.0\" type=\"string\"/>\n<att name=\"NODE_LABEL\" value=\"YYYYY\" type=\"string\"/>\n<att name=\"NODE_LABEL_TRANSPARENCY\" value=\"255\" type=\"string\"/>\n<att name=\"NODE_LABEL_FONT_FACE\" value=\"Dialog.plain,plain,12\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_SIZE_1\" value=\"0.0\" type=\"string\"/>\n<att name=\"NODE_CUSTOMGRAPHICS_SIZE_8\" value=\"0.0\" type=\"string\"/>\n"
+    nodenet+= "<att name=\"NODE_CUSTOMGRAPHICS_SIZE_3\" value=\"0.0\" type=\"string\"/>\n<att name=\"NODE_BORDER_TRANSPARENCY\" value=\"255\" type=\"string\"/>\n</graphics>\n</node>\n"
+
+    edgenet = "<edge id=\"XXXXX\" label=\"YYYYY\" source=\"JJJJJ\" target=\"KKKKK\" cy:directed=\"1\">\n<att name=\"interaction\" value=\"1\" type=\"string\"/>\n<att name=\"selected\" value=\"0\" type=\"boolean\"/>\n<att name=\"name\" value=\"YYYYY\" type=\"string\"/>\n"
+    edgenet+= "<att name=\"source\" value=\"PPPPP\" type=\"string\"/>\n<att name=\"target\" value=\"QQQQQ\" type=\"string\"/>\n<att name=\"reference presence\" value=\"RRRRR\" type=\"string\"/>\n<att name=\"compared presence\" value=\"SSSSS\" type=\"string\"/>\n<att name=\"source presence\" value=\"MMMMM\" type=\"string\"/>\n"
+    edgenet+= "<att name=\"target presence\" value=\"NNNNN\" type=\"string\"/>\n<att name=\"class\" value=\"OOOOO\" type=\"string\"/>\n<att name=\"color\" value=\"ZZZZZ\" type=\"string\"/>\n<graphics fill=\"ZZZZZ\" width=\"2.0\">\n<att name=\"EDGE_SOURCE_ARROW_SHAPE\" value=\"NONE\" type=\"string\"/>\n<att name=\"EDGE_TRANSPARENCY\" value=\"255\" type=\"string\"/>\n"
+    edgenet+= "<att name=\"EDGE_LABEL_TRANSPARENCY\" value=\"255\" type=\"string\"/>\n<att name=\"EDGE_BEND\" value=\"\" type=\"string\"/>\n<att name=\"EDGE_TARGET_ARROW_SELECTED_PAINT\" value=\"#ffff00\" type=\"string\"/>\n<att name=\"EDGE_LINE_TYPE\" value=\"SOLID\" type=\"string\"/>\n<att name=\"EDGE_TOOLTIP\" value=\"\" type=\"string\"/>\n<att name=\"EDGE_SOURCE_ARROW_SELECTED_PAINT\" value=\"#ffff00\" type=\"string\"/>\n"
+    edgenet+= "<att name=\"EDGE_LABEL_FONT_FACE\" value=\"Dialog.plain,plain,10\" type=\"string\"/>\n<att name=\"EDGE_STROKE_SELECTED_PAINT\" value=\"#0033ff\" type=\"string\"/>\n<att name=\"EDGE_LABEL_COLOR\" value=\"#000000\" type=\"string\"/>\n<att name=\"EDGE_CURVED\" value=\"true\" type=\"string\"/>\n<att name=\"EDGE_TARGET_ARROW_UNSELECTED_PAINT\" value=\"ZZZZZ\" type=\"string\"/>\n<att name=\"EDGE_LABEL\" value=\"\" type=\"string\"/>\n"
+    edgenet+= "<att name=\"EDGE_SELECTED\" value=\"false\" type=\"string\"/>\n<att name=\"EDGE_LABEL_FONT_SIZE\" value=\"10\" type=\"string\"/>\n<att name=\"EDGE_SOURCE_ARROW_UNSELECTED_PAINT\" value=\"ZZZZZ\" type=\"string\"/>\n<att name=\"EDGE_TARGET_ARROW_SHAPE\" value=\"DELTA\" type=\"string\"/>\n<att name=\"EDGE_VISIBLE\" value=\"true\" type=\"string\"/>\n</graphics>\n</edge>"
+
+
+#funcion que permite exportar la informacion de los nodos, genes y graphlets identificados en red de referencia
 def printres_gold(dictGraphlet, tf, res, outnetnodes, folder, outfile):
     tmpoutall = ''
     tmpout = ''
@@ -188,11 +242,12 @@ def createdDicForGraphles():
     return dictData
 
 #funcion que permite cargar la red de referencia, genera estructuras de datos para soportar las relaciones y mantener la data de los nodos
-def loadGold(referenceFile, threshold, net, outDegree, done, res):
+def loadGold(referenceFile, threshold, net, outDegree, done, res, case):
 
     #variables para la manipulacion de datos
     tf = {}
     outnetnodes = {}
+    outnet = {}
     nodes = []
     contTrue = 0
     contFalse = 0
@@ -240,19 +295,35 @@ def loadGold(referenceFile, threshold, net, outDegree, done, res):
                 res["motNode"].update({dataInLine[1]: {"true": dictGrapah}})
 
                 #trabajamos con la variable outnetnodes
-                outnetnodes.update({dataInLine[0]: ['TF','p',0,0]})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
-                outnetnodes.update({dataInLine[1]: ['nTF','p',0,0]})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
+                outnetnodes.update({dataInLine[0]: ['TF','P',0,0]})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
+                outnetnodes.update({dataInLine[1]: ['nTF','P',0,0]})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
 
-            else:
-                contFalse+=1
-                if dataInLine[0] not in net["true"].keys():
-                    net["true"].update({dataInLine[0]:{}})
-                    net["true"][dataInLine[0]].update({dataInLine[1]:0})#la red existe y presenta node1 -> node2 -> 1!
+                #trabajamos con el dicccionario outnet
+                if dataInLine[0] not in outnet.keys():
+                    outnet.update({dataInLine[0]:{}})
+                    outnet.update({dataInLine[0]:{dataInLine[1]:['P', 'A']}})#generamos el diccionario
                 else:
-                    net["true"][dataInLine[0]].update({dataInLine[1]:0})#la red existe y presenta node1 -> node2 -> 1!
+                    outnet.update({dataInLine[0]:{dataInLine[1]:['P', 'A']}})#generamos el diccionario
+            else:
+
+                if case == 1:
+                    contFalse+=1
+                    if dataInLine[0] not in net["true"].keys():
+                        net["true"].update({dataInLine[0]:{}})
+                        net["true"][dataInLine[0]].update({dataInLine[1]:0})#la red existe y presenta node1 -> node2 -> 1!
+                    else:
+                        net["true"][dataInLine[0]].update({dataInLine[1]:0})#la red existe y presenta node1 -> node2 -> 1!
 
         line = fileOpen.readline()
     fileOpen.close()
+
+    if case == 2:
+        for element1 in done["true"].keys():
+            for element2 in done["true"].keys():
+                if element1 not in net["true"].keys():
+                    net["true"].update({element1:{}})
+                net["true"][element1].update({element2:0})
+                contFalse+=1
 
     #obtenemos los valores finales para hacer el resumen
     tf = tf.keys()
@@ -261,7 +332,8 @@ def loadGold(referenceFile, threshold, net, outDegree, done, res):
     print "           \t#TFs\tn\t#P\t#N\n"
     print "REFERENCE :\t%d\t%d\t%d\t%d\n" % (len(tf), len(nodes), contTrue, contFalse)
 
-    return tf, nodes, outnetnodes
+    print len(net["true"])
+    return tf, nodes, outnetnodes, outnet
 
 #definicion de variables provenientes de consola, se trabajan con argparse para una mejor manipulacion
 parser = argparse.ArgumentParser()
@@ -313,9 +385,13 @@ outtxttable = "\nREFERENCE\t:\t%s\nINPUT\t\t:\t%s\nThreshold\t:\t%.2f\nCase\t\t:
 print outtxttable
 
 #cargamos la data de la red...
-tf, nodes, outnetnodes = loadGold(referenceFile, threshold, net, outDegree, done, res)
+tf, nodes, outnetnodes, outnet = loadGold(referenceFile, threshold, net, outDegree, done, res, case)
 
 #hacemos la busqueda de los motivos en base a las referencias entregadas y a las combinaciones generadas...
 dictGraphlet, donegraph= findMotives_gold(tf, done, outDegree, net, res)
 
+#imprimimos las busqueda generada
 printres_gold(dictGraphlet, tf, res, outnetnodes, folder, outfile)
+
+#imprimimos la red en formato xml
+printNets(outnetnodes, id, inputFile, outnet, folder, outfile)

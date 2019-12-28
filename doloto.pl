@@ -584,6 +584,7 @@ sub printNets{
 	my $edgestable = '';
 	my $edgestableD3 = '';
 	my $numnodes = (keys %outnetnodes);
+	print "NumNodes $numnodes\n";
 	my $xdim = $numnodes;
 	my $ydim = 2*$numnodes/3;
 	my $xcent = $xdim/2;

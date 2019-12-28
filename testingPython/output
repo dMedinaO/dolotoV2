@@ -1,7 +1,7 @@
 
 GRAPHLETS:
 Type:	1	2	3	4	5	6	7	8	9	10	11	12	13	total
-count	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+count	0	0	0	0	0	0	0	0	0	0	0	0	0	0
 
 TFs not in graphlets:
 ada
@@ -36,6 +36,9 @@ flhD
 fliZ
 fnr
 fur
+gadE
+gadW
+gadX
 galS
 gatR_1
 gntR
@@ -384,6 +387,7 @@ gabP
 gabT
 gadA
 gadB
+gadC
 galE
 galK
 galM
@@ -1026,9 +1030,6 @@ zwf
 
 TFs in graphlets:
 TF	1	2	3	4	5	6	7	8	9	10	11	12	13	total
-gadE	0	0	0	0	0	0	0	0	0	0	0	0	1	1
-gadW	0	0	0	0	0	0	0	0	0	0	0	0	1	1
-gadX	0	0	0	0	0	0	0	0	0	0	0	0	1	1
 
 
 Genes (no TF) in graphlets:
@@ -1127,7 +1128,6 @@ gene	1	total
 	4	total
 	5	total
 	6	total
-gadC	0	0	0	0	0	0	1
 
 
 GRAPHLETS:
@@ -1157,5 +1157,4 @@ Type 11:
 Type 12:
 
 Type 13:
-gadE gadW gadX
 
