@@ -1,6 +1,6 @@
 import argparse
 
-def printres_gold(dictGraphlet):
+def printres_gold(dictGraphlet, tf, res, outnetnodes, folder, outfile):
     tmpoutall = ''
     tmpout = ''
     tmpNOG = "TFs not in graphlets:\n"
@@ -26,6 +26,75 @@ def printres_gold(dictGraphlet):
         tmpoutall  += "\t"
         tmpoutall  += str(dictGraphlet[j])
         i += dictGraphlet[j]
+
+    print "\t%s\n\n" % str(i)
+    tmpoutall  += "\t"+str(i)
+    tmpout  += "TFs in graphlets:\nTF"
+    for j in range (13):
+        tmpout  += "\t"
+        tmpout  += str(j+1)
+
+    tmpout  += "\ttotal\n"
+
+    for element in tf:
+        if(0 != res["motNode"][element]["true"]["tot"]):
+            tmpout  += element
+            for j in range(13):
+                data = res["motNode"][element]["true"][str(j)]
+                tmpout  += "\t%d" % data
+            data = res["motNode"][element]["true"]["tot"]
+            tmpout = tmpout+ "\t"+str(data)+"\n"
+            outnetnodes[element][3] =  res["motNode"][element]["true"]["tot"]
+        else:
+            tmpNOG = tmpNOG+ element+ "\n"
+            outnetnodes[element][3] = 0
+
+        del res["motNode"][element]
+
+	tmpoutn+= "Genes (no TF) in graphlets:\ngene"
+    for j in range (6):
+        tmpoutn+= "\t"
+        tmpoutn+= str(j+1)
+
+	tmpoutn+= "\ttotal\n"
+
+    keysD = res["motNode"].keys()
+    keysD.sort()
+    for element in keysD:
+        if(0 != res["motNode"][element]["true"]["tot"]):
+            tmpoutn+= element
+            for j in range(6):
+                data = res["motNode"][element]["true"][str(j)]
+                tmpoutn+= "\t"+str(data)
+            data = res["motNode"][element]["true"]["tot"]
+            tmpoutn+= "\t"+str(data)+"\n";
+            outnetnodes[element][3] = res["motNode"][element]["true"]["tot"]
+        else:
+            tmpNOGn += element+"\n"
+            outnetnodes[element][3] = 0
+
+    #hacemos la escritura en el archivo de texto
+    fileExport = open(folder+"/"+outfile, 'w')
+
+    fileExport.write(tmpoutall+"\n\n")
+    fileExport.write(tmpNOG+"\n\n")
+    fileExport.write(tmpNOGn+"\n\n")
+    fileExport.write(tmpout+"\n\n")
+    fileExport.write(tmpoutn+"\n\n")
+
+    fileExport.write("GRAPHLETS:\n\n")
+    for i in range(13):
+        fileExport.write("Type ")
+        fileExport.write(str(i+1)+":\n")
+
+        for element in tf:
+            try:
+                for key in res["true"][element][str(i)]:
+                    fileExport.write(element+" "+key+"\n")
+            except:
+                pass
+        fileExport.write("\n")
+    fileExport.close()
 
 #funcion que permite identificar el patron o motivo del triplete correspondiente asociado al tipo de graphlet
 def dotriplet_noij(value1, value2, value3, value4, value5, key1, key2, key3):
@@ -63,7 +132,7 @@ def dotriplet_noij(value1, value2, value3, value4, value5, key1, key2, key3):
     return arrayResponse
 
 #funcion que permite encontrar los motivos de graphlets
-def findMotives_gold(tf, done, outDegree, net):
+def findMotives_gold(tf, done, outDegree, net, res):
 
     donegraph = {}
     dictGraphlet = []
@@ -92,19 +161,38 @@ def findMotives_gold(tf, done, outDegree, net):
                         donegraph.update({keyData4:response[0]})
                         donegraph.update({keyData5:response[0]})
                         donegraph.update({keyData6:response[0]})
+                        res["motNode"][response[1]]["true"][str(response[0])]+=1
+                        res["motNode"][response[2]]["true"][str(response[0])]+=1
+                        res["motNode"][response[3]]["true"][str(response[0])]+=1
+                        res["motNode"][response[1]]["true"]["tot"]+=1
+                        res["motNode"][response[2]]["true"]["tot"]+=1
+                        res["motNode"][response[3]]["true"]["tot"]+=1
 
+                        if response[1] not in res["true"]:
+                            res["true"].update({response[1]:{}})
+
+                        res["true"][response[1]].update({str(response[0]):{response[2]+" "+response[3]:1}})
                         dictGraphlet[response[0]]+=1#aumentamos el contador
                 except:
                     pass
 
     return dictGraphlet, donegraph
 
+#funcion auxiliar que permite crear el diccionario para los graphlets
+def createdDicForGraphles():
+
+    dictData = {}
+    for i in range(13):
+        dictData.update({str(i):0})
+
+    return dictData
 
 #funcion que permite cargar la red de referencia, genera estructuras de datos para soportar las relaciones y mantener la data de los nodos
-def loadGold(referenceFile, threshold, net, outDegree, done):
+def loadGold(referenceFile, threshold, net, outDegree, done, res):
 
     #variables para la manipulacion de datos
     tf = {}
+    outnetnodes = {}
     nodes = []
     contTrue = 0
     contFalse = 0
@@ -143,6 +231,18 @@ def loadGold(referenceFile, threshold, net, outDegree, done):
                     outDegree["true"].update({dataInLine[0]:[]})
                 outDegree["true"][dataInLine[0]].append(dataInLine[1])
 
+                #trabajamos con el diccionario res
+                dictGrapah = createdDicForGraphles()
+                dictGrapah.update({"rec":0})
+                dictGrapah.update({"tot":0})
+
+                res["motNode"].update({dataInLine[0]: {"true": dictGrapah}})
+                res["motNode"].update({dataInLine[1]: {"true": dictGrapah}})
+
+                #trabajamos con la variable outnetnodes
+                outnetnodes.update({dataInLine[0]: ['TF','p',0,0]})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
+                outnetnodes.update({dataInLine[1]: ['nTF','p',0,0]})#es in array de tamano 2... no se trabaja con numpy para disminuir consumo de recursos
+
             else:
                 contFalse+=1
                 if dataInLine[0] not in net["true"].keys():
@@ -161,7 +261,7 @@ def loadGold(referenceFile, threshold, net, outDegree, done):
     print "           \t#TFs\tn\t#P\t#N\n"
     print "REFERENCE :\t%d\t%d\t%d\t%d\n" % (len(tf), len(nodes), contTrue, contFalse)
 
-    return tf, nodes
+    return tf, nodes, outnetnodes
 
 #definicion de variables provenientes de consola, se trabajan con argparse para una mejor manipulacion
 parser = argparse.ArgumentParser()
@@ -183,6 +283,10 @@ case = args.case
 folder = args.folder
 outfile = args.output
 
+#evaluamos si folder viene con / en caso de que si... lo eliminamos
+if folder[-1] == "/":
+    folder = folder[:-1]
+
 #definicion de variables adicionales asociadas al ID y otros elementos de interes
 #variables adicionales
 fg_value = referenceFile.split("/")[-1]
@@ -198,6 +302,7 @@ else:
 net = {"true": {}, "pred": {}}
 outDegree = {"true": {}, "pred": {}}
 done = {"true": {}, "pred": {}}
+res = {"true": {}, "pred": {}, "mot": {}, "motNode": {}, "gm": [0,0,0,0,0], "global": [0,0,0,0]};#motives
 
 #defincion variables de texto
 outtxt = ""
@@ -208,9 +313,9 @@ outtxttable = "\nREFERENCE\t:\t%s\nINPUT\t\t:\t%s\nThreshold\t:\t%.2f\nCase\t\t:
 print outtxttable
 
 #cargamos la data de la red...
-tf, nodes = loadGold(referenceFile, threshold, net, outDegree, done)
+tf, nodes, outnetnodes = loadGold(referenceFile, threshold, net, outDegree, done, res)
 
 #hacemos la busqueda de los motivos en base a las referencias entregadas y a las combinaciones generadas...
-dictGraphlet, donegraph= findMotives_gold(tf, done, outDegree, net)
+dictGraphlet, donegraph= findMotives_gold(tf, done, outDegree, net, res)
 
-printres_gold(dictGraphlet)
+printres_gold(dictGraphlet, tf, res, outnetnodes, folder, outfile)
